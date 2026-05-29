@@ -39,12 +39,27 @@ publishing {
             pom {
                 name.set("A vs B Java SDK")
                 description.set("Official Java SDK for the A vs B feature-flag and experimentation platform.")
-                url.set("https://github.com/avsbhq/avsb")
+                url.set("https://github.com/avsbhq/avsb-java")
                 licenses {
                     license {
                         name.set("MIT License")
                         url.set("https://opensource.org/licenses/MIT")
+                        distribution.set("repo")
                     }
+                }
+                developers {
+                    developer {
+                        id.set("avsbhq")
+                        name.set("AvsB Platform")
+                        email.set("sdk@avsb.cloud")
+                        organization.set("AvsB")
+                        organizationUrl.set("https://avsb.cloud")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/avsbhq/avsb-java.git")
+                    developerConnection.set("scm:git:ssh://github.com:avsbhq/avsb-java.git")
+                    url.set("https://github.com/avsbhq/avsb-java/tree/main")
                 }
             }
         }
