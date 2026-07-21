@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * appears in a reason string with {@code "[REDACTED]"} when the attribute key
  * is listed in the context's {@code _meta.privateAttributes}.
  *
- * <p>Thread-safe — append and read can be called from different threads.
+ * <p>Thread-safe: append and read can be called from different threads.
  */
 public final class DecisionLog {
 

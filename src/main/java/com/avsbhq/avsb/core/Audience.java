@@ -16,7 +16,7 @@ import java.util.regex.PatternSyntaxException;
  *
  * <p>Browser-only condition types ({@code DEVICE}, {@code BROWSER},
  * {@code PLATFORM}, {@code LANGUAGE}, {@code COOKIE}, {@code QUERY_PARAM})
- * are not evaluated on the server — they always return {@code false}.
+ * are not evaluated on the server; they always return {@code false}.
  */
 public final class Audience {
 

@@ -17,7 +17,7 @@ import java.util.Map;
  *   <li>Flag disabled → {@link EvaluationSource#DISABLED} (default variation).</li>
  *   <li>User override → {@link EvaluationSource#DATAFILE_OVERRIDE}.</li>
  *   <li>Holdout check → {@link EvaluationSource#HOLDOUT} if held out.</li>
- *   <li>Rules loop (in order) — first enabled matching rule wins.</li>
+ *   <li>Rules loop (in order): first enabled matching rule wins.</li>
  *   <li>Default variation → {@link EvaluationSource#DEFAULT}.</li>
  * </ol>
  */

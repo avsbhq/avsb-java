@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Bandit evaluation engine — epsilon-greedy, Thompson sampling, UCB1.
+ * Bandit evaluation engine: epsilon-greedy, Thompson sampling, UCB1.
  *
  * <p>Mirrors {@code @avsbhq/core/src/bandits.ts}. All algorithms are pure
- * functions of {@code (perAction, actions, hashBucket)} — no
+ * functions of {@code (perAction, actions, hashBucket)}; no
  * {@link Math#random()} is used. Every stochastic step is seeded from
  * {@link Hash#murmurhash3} so a {@code (banditKey, context)} pair always
  * produces the same decision.

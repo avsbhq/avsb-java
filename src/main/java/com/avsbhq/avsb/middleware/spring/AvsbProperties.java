@@ -17,16 +17,16 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "avsb")
 public class AvsbProperties {
 
-    /** Required — your environment SDK key. */
+    /** Required: your environment SDK key. */
     private String sdkKey;
 
-    /** Optional — override the datafile URL. Defaults to the CDN URL for the key. */
+    /** Optional: override the datafile URL. Defaults to the CDN URL for the key. */
     private String datafileUrl;
 
-    /** Optional — HTTP fetch timeout. Defaults to 10 seconds. */
+    /** Optional: HTTP fetch timeout. Defaults to 10 seconds. */
     private Duration fetchTimeout = Duration.ofSeconds(10);
 
-    /** Optional — if true, logs evaluation details at DEBUG level. */
+    /** Optional: if true, logs evaluation details at DEBUG level. */
     private boolean debugEvaluation = false;
 
     public String getSdkKey() { return sdkKey; }

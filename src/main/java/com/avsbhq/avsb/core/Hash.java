@@ -1,7 +1,7 @@
 package com.avsbhq.avsb.core;
 
 /**
- * MurmurHash3_x86_32 — deterministic 32-bit hash for visitor bucketing.
+ * MurmurHash3_x86_32: deterministic 32-bit hash for visitor bucketing.
  *
  * <p>This is an exact Java port of {@code murmurhash3} in
  * {@code @avsbhq/core/src/hash.ts}. It must produce byte-identical outputs
@@ -11,7 +11,7 @@ package com.avsbhq.avsb.core;
  * <p>Java {@code int} is signed 32-bit two's-complement, which matches
  * JavaScript's {@code Math.imul} semantics. The critical difference is that
  * Java's {@code >>} is a signed shift whereas JavaScript's {@code >>>} is
- * unsigned — we use {@code >>>} throughout to match the TS source.
+ * unsigned; we use {@code >>>} throughout to match the TS source.
  */
 public final class Hash {
 
@@ -26,7 +26,7 @@ public final class Hash {
      * @param key  UTF-16 string (characters accessed via {@link String#charAt}).
      * @param seed Initial hash seed (default 0).
      * @return Unsigned 32-bit hash value expressed as a Java {@code int}
-     *         (may be negative — treat as unsigned when computing bucket
+     *         (may be negative; treat as unsigned when computing bucket
      *         percentages by masking with {@code 0xFFFFFFFFL}).
      */
     public static int murmurhash3(String key, int seed) {
@@ -98,7 +98,7 @@ public final class Hash {
     }
 
     /**
-     * Simulate JavaScript's {@code Math.imul} — 32-bit integer multiplication
+     * Simulate JavaScript's {@code Math.imul}: 32-bit integer multiplication
      * that discards the upper 32 bits of the 64-bit product. Java's {@code *}
      * already does this for {@code int * int} (overflow wraps), so this is
      * just a named alias to make the intent explicit.

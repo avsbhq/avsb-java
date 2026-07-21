@@ -1,4 +1,4 @@
-# avsb-sdk — Java SDK
+# avsb-sdk: Java SDK
 
 Official Java SDK for the [A vs B](https://app.avsb.cloud) feature-flag and experimentation platform.
 
@@ -66,7 +66,7 @@ System.out.printf("variation=%s source=%s%n", flag.variationKey(), flag.source()
 
 ## 3. SDK keys
 
-Get a **server SDK key** from your A vs B project's Environments page. Store it in an environment variable — never hard-code it.
+Get a **server SDK key** from your A vs B project's Environments page. Store it in an environment variable; never hard-code it.
 
 ```bash
 export AVSB_SDK_KEY=sdk-...
@@ -91,7 +91,7 @@ Never use the public (client-side) SDK key in server code. Server SDK keys carry
 import com.avsbhq.avsb.EvalContext;
 import java.util.Map;
 
-// User context — most common
+// User context (most common)
 EvalContext ctx = EvalContext.user("alice", Map.of("plan", "pro", "betaTester", true));
 ```
 
@@ -102,7 +102,7 @@ EvalContext ctx = EvalContext.user("alice", Map.of("plan", "pro", "betaTester", 
 EvalContext orgCtx = EvalContext.of("organization", "acme", Map.of("tier", "enterprise"));
 ```
 
-### `identify(context)` — notify downstream integrations
+### `identify(context)`: notify downstream integrations
 
 ```java
 server.identify(ctx);
@@ -149,21 +149,21 @@ Flag<Object>  jsonFlag   = server.getJsonFlag("api-config",    Map.of("timeout",
 
 A `defaultValue` is required on every call. It is returned when the flag is not found, the server is not initialised, or evaluation fails.
 
-### `Flag<T>` — full evaluation envelope
+### `Flag<T>`: full evaluation envelope
 
 ```java
 Flag<Boolean> flag = server.getBoolFlag("checkout-v2", false, ctx);
 
-flag.value()          // T — the evaluated value
-flag.variationKey()   // Optional<String> — matched variation key
+flag.value()          // T: the evaluated value
+flag.variationKey()   // Optional<String>: matched variation key
 flag.source()         // EvaluationSource enum
-flag.ruleId()         // Optional<String> — matched rule id
+flag.ruleId()         // Optional<String>: matched rule id
 flag.ruleType()       // Optional<RuleType> enum
 flag.reasons()        // List<String>
-flag.evaluatedAt()    // long — ms epoch
-flag.durationMicros() // long — microseconds in evaluator
-flag.isEnabled()      // boolean — source==RULE && truthy value
-flag.exists()         // boolean — source != NOT_FOUND
+flag.evaluatedAt()    // long: ms epoch
+flag.durationMicros() // long: microseconds in evaluator
+flag.isEnabled()      // boolean: source==RULE && truthy value
+flag.exists()         // boolean: source != NOT_FOUND
 ```
 
 `EvaluationSource` is an enum:
@@ -228,7 +228,7 @@ InitResult result = server.init();
 if (!result.isSuccess() && !result.isDegraded()) {
     throw new IllegalStateException("AvsB SDK failed to initialise: " + result.error());
 }
-// Degraded: datafile unavailable but bootstrap was supplied — safe to continue on defaults.
+// Degraded: datafile unavailable but bootstrap was supplied, safe to continue on defaults.
 ```
 
 `get*Flag` methods never throw. Evaluation failures return the supplied `defaultValue` with `source == EvaluationSource.NOT_FOUND`.
@@ -377,7 +377,7 @@ class CheckoutFlagTest {
 }
 ```
 
-`TestUtils.serverFromFile(sdkKey, Path)` reads a datafile from disk — useful for conformance fixture replay:
+`TestUtils.serverFromFile(sdkKey, Path)` reads a datafile from disk, useful for conformance fixture replay:
 
 ```java
 AvsbServer server = TestUtils.serverFromFile("sdk-test",
@@ -422,7 +422,7 @@ boolean value   = server.getBoolFlag("checkout-v2", false, ctx).value();
 ```
 
 ```java
-// LaunchDarkly — multi-context
+// LaunchDarkly (multi-context)
 LDContext multi = LDContext.createMulti(
     LDContext.create("alice"),
     LDContext.builder("acme").kind("organization").set("tier", "enterprise").build()
@@ -430,7 +430,7 @@ LDContext multi = LDContext.createMulti(
 ```
 
 ```java
-// A vs B — multi-context
+// A vs B (multi-context)
 EvalContext ctx = EvalContext.multi(Map.of(
     "user",         EvalContext.user("alice"),
     "organization", EvalContext.of("organization", "acme", Map.of("tier", "enterprise"))
@@ -440,7 +440,7 @@ EvalContext ctx = EvalContext.multi(Map.of(
 Key differences:
 - `getBoolFlag` requires an explicit `defaultValue`. No untyped `variation()`.
 - Returns `Flag<T>` with full metadata. No separate `variationDetail()` call needed.
-- `EvalContext` is a sealed interface with `SingleContext` and `MultiContext` record implementations — no builder for the common case.
+- `EvalContext` is a sealed interface with `SingleContext` and `MultiContext` record implementations; there's no builder for the common case.
 
 ### From Statsig Java SDK
 
@@ -461,12 +461,12 @@ boolean gate    = server.getBoolFlag("checkout-v2", false, ctx).isEnabled();
 ```
 
 ```java
-// Statsig — log event
+// Statsig (log event)
 StatsigServer.logEvent(user, "purchase", "49.99", Map.of("plan", "pro"));
 ```
 
 ```java
-// A vs B — track event
+// A vs B (track event)
 server.track("purchase", ctx, TrackPayload.builder().value(49.99)
     .properties(Map.of("plan", "pro")).build());
 ```

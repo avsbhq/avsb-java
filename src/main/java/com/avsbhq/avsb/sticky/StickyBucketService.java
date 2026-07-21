@@ -18,7 +18,7 @@ public interface StickyBucketService {
     StickyAssignment lookup(String userId, String flagKey);
 
     /**
-     * Persist an assignment. Fire-and-forget — implementations may write
+     * Persist an assignment. Fire-and-forget: implementations may write
      * asynchronously.
      */
     void save(String userId, String flagKey, StickyAssignment assignment);

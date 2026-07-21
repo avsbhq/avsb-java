@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 /**
  * Test helper utilities. Provides factory methods for constructing an
- * {@link AvsbServer} pre-loaded with an in-memory datafile — useful in unit
+ * {@link AvsbServer} pre-loaded with an in-memory datafile, useful in unit
  * and conformance tests without requiring a live network connection.
  */
 public final class TestUtils {

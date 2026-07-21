@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * }</pre>
  *
  * <p>All evaluation methods require an explicit {@code defaultValue} parameter
- * (spec §5.3 — per-call defaults).
+ * (spec §5.3: per-call defaults).
  */
 public final class AvsbServer {
 
@@ -191,7 +191,7 @@ public final class AvsbServer {
             logger.warn("evaluate called before datafile loaded; returning default for \"" + key + "\"");
             return Flag.<T>builder(defaultValue)
                     .source(EvaluationSource.NOT_FOUND)
-                    .reasons(java.util.List.of("SDK not initialised — no datafile loaded"))
+                    .reasons(java.util.List.of("SDK not initialised: no datafile loaded"))
                     .evaluatedAt(System.currentTimeMillis())
                     .build();
         }

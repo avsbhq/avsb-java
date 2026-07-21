@@ -10,9 +10,9 @@ import java.util.Map;
  *
  * <p>Two concrete implementations:
  * <ul>
- *   <li>{@link SingleContext} — a single kinded identity with a bucketing key
+ *   <li>{@link SingleContext}: a single kinded identity with a bucketing key
  *       and optional custom attributes.</li>
- *   <li>{@link MultiContext} — a container of named {@link SingleContext}s,
+ *   <li>{@link MultiContext}: a container of named {@link SingleContext}s,
  *       one per context kind (e.g. {@code user}, {@code organization}).</li>
  * </ul>
  *
@@ -61,7 +61,7 @@ public sealed interface EvalContext permits EvalContext.SingleContext, EvalConte
     /**
      * A single kinded identity. Mirrors {@code SingleContext} in types.ts.
      *
-     * @param kind       Context kind — {@code "user"} is conventional.
+     * @param kind       Context kind; {@code "user"} is conventional.
      * @param key        Unique bucketing identifier within this kind.
      * @param name       Optional human-readable display name (not used in eval).
      * @param attributes Custom targeting attributes.
@@ -97,7 +97,7 @@ public sealed interface EvalContext permits EvalContext.SingleContext, EvalConte
 
     /**
      * A container of named single-context entries. Mirrors {@code MultiContext}
-     * in types.ts — {@code kind} is always {@code "multi"}.
+     * in types.ts: {@code kind} is always {@code "multi"}.
      *
      * @param contexts Map of context-kind to {@link SingleContext}.
      */

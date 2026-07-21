@@ -6,7 +6,7 @@ import java.util.Map;
  * External store for large-segment membership data. Mirrors
  * {@code BigSegmentStore} (§2.9) in types.ts.
  *
- * <p>Implementations must be thread-safe — the evaluator calls {@link #isMember}
+ * <p>Implementations must be thread-safe: the evaluator calls {@link #isMember}
  * on every flag evaluation in the hot path.
  */
 public interface BigSegmentStore {
@@ -15,7 +15,7 @@ public interface BigSegmentStore {
      * Synchronous membership check. Returns {@code true} when {@code contextKey}
      * is a member of {@code segmentKey}.
      *
-     * <p>Must never throw — return {@code false} on failure and let
+     * <p>Must never throw. Return {@code false} on failure and let
      * {@link #isHealthy()} report the degraded state.
      */
     boolean isMember(String segmentKey, String contextKey);

@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisPool;
 /**
  * Redis-backed sticky-bucket service using <a href="https://github.com/redis/jedis">Jedis</a>.
  *
- * <p>Jedis is declared as {@code compileOnly} — add it as a {@code runtimeOnly}
+ * <p>Jedis is declared as {@code compileOnly}; add it as a {@code runtimeOnly}
  * dependency in your application if you use this class.
  *
  * <p>Keys are stored as Redis hashes under {@code avsb:sticky:<userId>:<flagKey>}
