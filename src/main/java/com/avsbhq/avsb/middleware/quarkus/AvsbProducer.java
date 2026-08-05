@@ -10,10 +10,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 /**
  * Quarkus CDI producer that exposes an {@link AvsbServer} application-scoped bean.
  *
- * <p>Configure in {@code application.properties}:
+ * <p>Configure in {@code application.properties}. Only the key is required: the datafile URL
+ * is derived from it through the endpoint contract.
  * <pre>
- * avsb.sdk-key=sdk-my-key
- * avsb.datafile-url=https://cdn.avsb.cloud/datafiles/sdk-my-key.json
+ * avsb.sdk-key=sdk_production_ttqm0eaj4vth1krcb2xn
+ * # Optional, for a self-hosted proxy or local development:
+ * avsb.datafile-url=https://cdn.avsb.cloud/sdk_production_ttqm0eaj4vth1krcb2xn/datafile.json
  * </pre>
  */
 @ApplicationScoped

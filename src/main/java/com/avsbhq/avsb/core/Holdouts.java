@@ -38,7 +38,12 @@ public final class Holdouts {
 
             String bucketKey = resolveBucketKey(ctx, holdout.hashAttribute());
             int hash = Hash.bucket(holdout.key() + ":" + bucketKey);
-            int threshold = (int) Math.floor(holdout.trafficAllocation() * 10_000);
+            // Float comparison against the raw product, never a floor (spec section 1.4).
+            // Flooring put holdouts one bucket out of step with the ab_test allocation
+            // gate: a 0.12345 holdout has a threshold of 1234.5, so bucket 1234 is inside
+            // the window, but the floored form compared against 1234 and let that context
+            // through. Every port compares the raw product.
+            double threshold = holdout.trafficAllocation() * 10_000;
             if (hash >= threshold) continue;
 
             String varId = holdout.defaultVariationByFlag() != null
@@ -52,6 +57,8 @@ public final class Holdouts {
 
     private static String resolveBucketKey(EvalContext ctx, String hashAttribute) {
         Object value = Context.resolveDottedAttribute(ctx, hashAttribute);
-        return value == null ? "" : String.valueOf(value);
+        // JavaScript coercion, not Java's: a numeric hash attribute must stringify to
+        // "42", not "42.0", or this JVM buckets the user differently from every other SDK.
+        return value == null ? "" : JsNumber.stringOf(value);
     }
 }

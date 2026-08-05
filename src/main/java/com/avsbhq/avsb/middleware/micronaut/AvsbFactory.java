@@ -9,11 +9,13 @@ import jakarta.inject.Singleton;
 /**
  * Micronaut factory that exposes an {@link AvsbServer} singleton bean.
  *
- * <p>Configure in {@code application.yml}:
+ * <p>Configure in {@code application.yml}. Only the key is required: the datafile URL is
+ * derived from it through the endpoint contract.
  * <pre>
  * avsb:
- *   sdk-key: sdk-my-key
- *   datafile-url: https://cdn.avsb.cloud/datafiles/sdk-my-key.json
+ *   sdk-key: sdk_production_ttqm0eaj4vth1krcb2xn
+ *   # Optional, for a self-hosted proxy or local development:
+ *   datafile-url: https://cdn.avsb.cloud/sdk_production_ttqm0eaj4vth1krcb2xn/datafile.json
  * </pre>
  */
 @Factory

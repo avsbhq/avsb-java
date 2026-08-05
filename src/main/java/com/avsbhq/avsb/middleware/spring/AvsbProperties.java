@@ -7,10 +7,12 @@ import java.time.Duration;
 /**
  * Spring Boot configuration properties for the A vs B SDK.
  *
- * <p>Configure in {@code application.properties} or {@code application.yml}:
+ * <p>Configure in {@code application.properties} or {@code application.yml}. Only the key is
+ * required: the datafile URL is derived from it through the endpoint contract.
  * <pre>
- * avsb.sdk-key=sdk-my-key
- * avsb.datafile-url=https://cdn.avsb.cloud/datafiles/sdk-my-key.json
+ * avsb.sdk-key=sdk_production_ttqm0eaj4vth1krcb2xn
+ * # Optional, for a self-hosted proxy or local development:
+ * avsb.datafile-url=https://cdn.avsb.cloud/sdk_production_ttqm0eaj4vth1krcb2xn/datafile.json
  * avsb.fetch-timeout=10s
  * </pre>
  */

@@ -14,11 +14,13 @@ class AudienceTest {
 
     // Helper: build a ConditionNode with the given operator and value.
     private static Datafile.ConditionNode cond(String attribute, String operator, Object value) {
-        return new Datafile.ConditionNode("c1", "CUSTOM_ATTRIBUTE", attribute, operator, value, null);
+        return new Datafile.ConditionNode(
+                "c1", "CUSTOM_ATTRIBUTE", attribute, operator, value, null, null, null);
     }
 
     private static Datafile.ConditionNode condKind(String contextKind, String attribute, String operator, Object value) {
-        return new Datafile.ConditionNode("c1", "CUSTOM_ATTRIBUTE", attribute, operator, value, contextKind);
+        return new Datafile.ConditionNode(
+                "c1", "CUSTOM_ATTRIBUTE", attribute, operator, value, contextKind, null, null);
     }
 
     private static EvalContext userCtx(String key, Map<String, Object> attrs) {
@@ -120,7 +122,64 @@ class AudienceTest {
 
     @Test @DisplayName("browser-only condition types return false on server") void browserConditionFalse() {
         EvalContext ctx = EvalContext.user("alice");
-        Datafile.ConditionNode deviceCond = new Datafile.ConditionNode("c1", "DEVICE", null, "equals", "mobile", null);
+        Datafile.ConditionNode deviceCond = new Datafile.ConditionNode(
+                "c1", "DEVICE", null, "equals", "mobile", null, null, null);
         assertFalse(Audience.evaluateCondition(deviceCond, ctx));
+    }
+
+    // -------------------------------------------------------------------------
+    // Alias operators (spec section 1.4 operator matrix)
+    //
+    // The dashboard audience builder writes these spellings for the device-style
+    // condition types, and they reach CUSTOM_ATTRIBUTE conditions too. Before they were
+    // handled, an audience saved with `is` fell through to the default arm and matched
+    // nobody, with nothing logged.
+    // -------------------------------------------------------------------------
+
+    @Test @DisplayName("is / is_not alias equals / not_equals") void aliasIsAndIsNot() {
+        EvalContext pro = userCtx("alice", Map.of("plan", "pro"));
+        assertTrue(Audience.evaluateCondition(cond("plan", "is", "pro"), pro));
+        assertFalse(Audience.evaluateCondition(cond("plan", "is", "free"), pro));
+        assertTrue(Audience.evaluateCondition(cond("plan", "is_not", "free"), pro));
+        assertFalse(Audience.evaluateCondition(cond("plan", "is_not", "pro"), pro));
+    }
+
+    @Test @DisplayName("does_not_contain aliases not_contains") void aliasDoesNotContain() {
+        EvalContext ctx = userCtx("alice", Map.of("email", "alice@example.com"));
+        assertTrue(Audience.evaluateCondition(cond("email", "does_not_contain", "@other"), ctx));
+        assertFalse(Audience.evaluateCondition(cond("email", "does_not_contain", "@EXAMPLE"), ctx));
+    }
+
+    @Test @DisplayName("does_not_exist aliases not_exists") void aliasDoesNotExist() {
+        EvalContext without = userCtx("alice", Map.of());
+        EvalContext with = userCtx("alice", Map.of("plan", "pro"));
+        assertTrue(Audience.evaluateCondition(cond("plan", "does_not_exist", ""), without));
+        assertFalse(Audience.evaluateCondition(cond("plan", "does_not_exist", ""), with));
+    }
+
+    @Test @DisplayName("an unknown operator matches nobody rather than everybody") void unknownOperator() {
+        EvalContext ctx = userCtx("alice", Map.of("plan", "pro"));
+        assertFalse(Audience.evaluateCondition(cond("plan", "sounds_like", "pro"), ctx));
+    }
+
+    // -------------------------------------------------------------------------
+    // JavaScript coercion in comparisons
+    // -------------------------------------------------------------------------
+
+    @Test @DisplayName("a numeric attribute compares as JavaScript would stringify it") void numericEquals() {
+        // Java's String.valueOf(42.0) is "42.0", which would miss a condition written as 42.
+        assertTrue(Audience.evaluateCondition(
+                cond("seats", "equals", "42"), userCtx("alice", Map.of("seats", 42))));
+        assertTrue(Audience.evaluateCondition(
+                cond("seats", "equals", "42"), userCtx("alice", Map.of("seats", 42.0d))));
+        assertTrue(Audience.evaluateCondition(
+                cond("ratio", "equals", "0.25"), userCtx("alice", Map.of("ratio", 0.25d))));
+    }
+
+    @Test @DisplayName("a numeric comparison against a missing attribute never matches") void missingNumeric() {
+        EvalContext ctx = userCtx("alice", Map.of());
+        assertFalse(Audience.evaluateCondition(cond("age", "greater_than", "18"), ctx));
+        assertFalse(Audience.evaluateCondition(cond("age", "less_than", "18"), ctx));
+        assertFalse(Audience.evaluateCondition(cond("age", "gte", "0"), ctx));
     }
 }

@@ -18,18 +18,26 @@ import java.util.function.Consumer;
 /**
  * Lightweight Server-Sent Events (SSE) client that reconnects on failure.
  *
- * <p>The A vs B SSE stream endpoint delivers datafile updates in real time.
- * Each line starting with {@code "data:"} contains the updated datafile JSON.
- * Pass a {@code Consumer<String>} to {@link #start} to receive each JSON payload.
+ * <p>NOT WIRED INTO {@link com.avsbhq.avsb.AvsbServer} YET. Streaming needs an endpoint,
+ * and the only correct source for one is the datafile's {@code streamEndpoint} field
+ * resolved through {@link com.avsbhq.avsb.Endpoints#resolveStreamEndpoint}. Defaulting to a
+ * guessed host is what gave Go customers an infinite reconnect loop against DNS that does
+ * not resolve, so this class stays available and unwired until the streaming session lands.
+ * The background polling loop keeps flags fresh in the meantime.
+ *
+ * <p>Each line starting with {@code "data:"} carries an updated datafile JSON payload.
  *
  * <pre>{@code
- * SseClient sse = new SseClient(
- *     URI.create("https://stream.avsb.cloud/v1/stream/sdk-key"),
- *     Logger.console()
- * );
- * sse.start(json -> server.loadDatafile(json));
- * // ... later:
- * sse.stop();
+ * Endpoints.StreamEndpointResolution resolved =
+ *         Endpoints.resolveStreamEndpoint(null, server.datafile().streamEndpoint());
+ * if (resolved.available()) {
+ *     SseClient sse = new SseClient(
+ *             URI.create(Endpoints.streamTicketUrl(resolved.endpoint(), sdkKey)),
+ *             Logger.console());
+ *     sse.start(json -> server.loadDatafile(json));
+ *     // ... later:
+ *     sse.stop();
+ * }
  * }</pre>
  */
 public final class SseClient {

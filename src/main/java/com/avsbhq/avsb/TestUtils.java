@@ -23,16 +23,23 @@ public final class TestUtils {
     private TestUtils() {}
 
     /**
-     * Create an {@link AvsbServer} loaded from a JSON string.
+     * Create an {@link AvsbServer} loaded from a JSON string, with polling, event sending, and
+     * logging all off, so a test never touches the network and never prints.
      *
-     * @param sdkKey   SDK key (can be any non-blank string in tests).
+     * @param sdkKey       SDK key. Any non-blank string works; a key that is not real-shaped
+     *                     would normally log an actionable error, which the no-op logger
+     *                     swallows here.
      * @param jsonDatafile Datafile JSON.
      */
     public static AvsbServer serverFromJson(String sdkKey, String jsonDatafile) {
         try {
             Datafile.FlagDatafileDoc doc = MAPPER.readValue(jsonDatafile, Datafile.FlagDatafileDoc.class);
-            AvsbServer server = AvsbServer.builder(sdkKey).bootstrapDatafile(doc).build();
-            return server;
+            return AvsbServer.builder(sdkKey)
+                    .logger(Logger.noOp())
+                    .polling(false)
+                    .tracking(false)
+                    .bootstrapDatafile(doc)
+                    .build();
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to parse datafile JSON", e);
         }

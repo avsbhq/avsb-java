@@ -2,12 +2,15 @@ package com.avsbhq.avsb.core;
 
 import com.avsbhq.avsb.EvalContext;
 import com.avsbhq.avsb.EvaluationSource;
+import com.avsbhq.avsb.ExposureEvent;
 import com.avsbhq.avsb.Flag;
 import com.avsbhq.avsb.RuleType;
 import com.avsbhq.avsb.TestUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,10 +23,10 @@ class EvaluatorTest {
             {
               "version": 2,
               "projectType": "FEATURE_FLAG",
-              "sdkKey": "test-key",
+              "sdkKey": "sdk_test_conformancefixture01",
               "environmentKey": "test",
               "publishedAt": "2026-05-29T00:00:00.000Z",
-              "collectEndpoint": "https://ingest.avsb.cloud/v1/events",
+              "collectEndpoint": "https://ingest.avsb.cloud",
               "flags": [
                 {
                   "id": "flag_1",
@@ -85,6 +88,29 @@ class EvaluatorTest {
                       ]
                     }
                   ]
+                },
+                {
+                  "id": "flag_future",
+                  "key": "future-rule-flag",
+                  "type": "boolean",
+                  "enabled": true,
+                  "defaultVariationId": "var_off",
+                  "variations": [
+                    {"id": "var_off", "key": "off", "value": false},
+                    {"id": "var_on",  "key": "on",  "value": true}
+                  ],
+                  "overrides": [],
+                  "rules": [
+                    {
+                      "id": "rule_from_the_future",
+                      "type": "multi_armed_rollout",
+                      "enabled": true,
+                      "audienceIds": [],
+                      "hashAttribute": "user.key",
+                      "trafficAllocation": null,
+                      "variations": []
+                    }
+                  ]
                 }
               ],
               "audiences": [
@@ -107,92 +133,111 @@ class EvaluatorTest {
     }
 
     @Test
-    @DisplayName("flag not found returns source=NOT_FOUND with default value")
+    @DisplayName("flag not found returns source=NOT_FOUND with the caller default")
     void flagNotFound() {
-        Flag<Boolean> flag = Evaluator.evaluateFlag("missing-flag", false, EvalContext.user("alice"), datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("missing-flag", false, EvalContext.user("alice"), datafile());
         assertEquals(EvaluationSource.NOT_FOUND, flag.source());
-        assertFalse(flag.value());
+        assertEquals(Boolean.FALSE, flag.value());
         assertFalse(flag.exists());
     }
 
     @Test
-    @DisplayName("disabled flag returns source=DISABLED with default variation value")
+    @DisplayName("disabled flag returns source=DISABLED with the default variation value")
     void disabledFlag() {
-        Flag<Boolean> flag = Evaluator.evaluateFlag("disabled-flag", true, EvalContext.user("alice"), datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("disabled-flag", true, EvalContext.user("alice"), datafile());
         assertEquals(EvaluationSource.DISABLED, flag.source());
-        assertFalse(flag.value(), "Should return the default variation value, not the call default");
+        assertEquals(Boolean.FALSE, flag.value(),
+                "the default variation value wins over the caller default");
+        assertTrue(flag.exists(), "a disabled flag still exists");
     }
 
     @Test
     @DisplayName("user override wins over rules")
     void userOverride() {
-        Flag<Boolean> flag = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("vip-user"), datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("vip-user"), datafile());
         assertEquals(EvaluationSource.DATAFILE_OVERRIDE, flag.source());
-        assertTrue(flag.value());
+        assertEquals(Boolean.TRUE, flag.value());
         assertEquals("on", flag.variationKey());
     }
 
     @Test
-    @DisplayName("targeted_delivery rule matches paid user")
+    @DisplayName("targeted_delivery rule matches a paid user")
     void targetedDeliveryMatch() {
         EvalContext ctx = EvalContext.user("alice", Map.of("plan", "paid"));
-        Flag<Boolean> flag = Evaluator.evaluateFlag("feature-flag", false, ctx, datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("feature-flag", false, ctx, datafile());
         assertEquals(EvaluationSource.RULE, flag.source());
         assertEquals(RuleType.TARGETED_DELIVERY, flag.ruleType());
-        assertTrue(flag.value());
+        assertEquals(Boolean.TRUE, flag.value());
     }
 
     @Test
-    @DisplayName("targeted_delivery rule misses free user, returns default")
+    @DisplayName("targeted_delivery rule misses a free user and returns the default variation")
     void targetedDeliveryMiss() {
         EvalContext ctx = EvalContext.user("alice", Map.of("plan", "free"));
-        Flag<Boolean> flag = Evaluator.evaluateFlag("feature-flag", false, ctx, datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("feature-flag", false, ctx, datafile());
         assertEquals(EvaluationSource.DEFAULT, flag.source());
-        assertFalse(flag.value());
+        assertEquals(Boolean.FALSE, flag.value());
+        assertEquals(List.of(
+                "rule \"rule_full\" skipped (audience not matched)",
+                "no rules matched, returning default variation"), flag.reasons());
     }
 
     @Test
-    @DisplayName("ab_test rule assigns deterministic variation")
+    @DisplayName("ab_test rule assigns a deterministic variation")
     void abTestDeterministic() {
         EvalContext ctx = EvalContext.user("alice");
-        Flag<String> r1 = Evaluator.evaluateFlag("ab-experiment", "fallback", ctx, datafile());
-        Flag<String> r2 = Evaluator.evaluateFlag("ab-experiment", "fallback", ctx, datafile());
+        Flag<Object> r1 = Evaluator.evaluateFlag("ab-experiment", "fallback", ctx, datafile());
+        Flag<Object> r2 = Evaluator.evaluateFlag("ab-experiment", "fallback", ctx, datafile());
         assertEquals(r1.variationKey(), r2.variationKey(), "AB test must be deterministic");
         assertEquals(EvaluationSource.RULE, r1.source());
         assertEquals(RuleType.AB_TEST, r1.ruleType());
     }
 
     @Test
-    @DisplayName("reasons list is populated for every evaluation path")
-    void reasonsPopulated() {
-        Flag<Boolean> found = Evaluator.evaluateFlag("missing-flag", false, EvalContext.user("x"), datafile());
-        assertFalse(found.reasons().isEmpty());
-
-        Flag<Boolean> disabled = Evaluator.evaluateFlag("disabled-flag", false, EvalContext.user("x"), datafile());
-        assertFalse(disabled.reasons().isEmpty());
+    @DisplayName("an unsupported rule type is skipped with a reason naming it")
+    void unknownRuleTypeIsNamed() {
+        Flag<Object> flag = Evaluator.evaluateFlag(
+                "future-rule-flag", false, EvalContext.user("alice"), datafile());
+        assertEquals(EvaluationSource.DEFAULT, flag.source());
+        assertEquals(List.of(
+                "rule \"rule_from_the_future\" skipped (unsupported rule type"
+                        + " \"multi_armed_rollout\")",
+                "no rules matched, returning default variation"), flag.reasons());
     }
 
     @Test
-    @DisplayName("evaluatedAt is set to a current ms epoch")
-    void evaluatedAtSet() {
+    @DisplayName("an ab_test decision fires one exposure with the locked event name and properties")
+    void abTestFiresExposure() {
+        List<ExposureEvent> fired = new ArrayList<>();
+        Evaluator.evaluateFlag("ab-experiment", "fallback", EvalContext.user("alice"),
+                datafile(), EvaluateOptions.withExposure(fired::add));
+
+        assertEquals(1, fired.size());
+        ExposureEvent event = fired.get(0);
+        assertEquals("flag_exposure", event.eventName());
+        assertEquals("alice", event.visitorId());
+        assertEquals("rule_ab", event.experimentId());
+        assertNull(event.revenue(), "an exposure never carries money");
+        assertEquals("", event.pageUrl(), "there is no page on a server");
+        assertEquals("ab-experiment", event.properties().get("flagKey"));
+        assertEquals("flag_ab", event.properties().get("flagId"));
+    }
+
+    @Test
+    @DisplayName("no exposure fires when the flag falls through to its default")
+    void defaultFiresNoExposure() {
+        List<ExposureEvent> fired = new ArrayList<>();
+        Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("alice", Map.of("plan", "free")),
+                datafile(), EvaluateOptions.withExposure(fired::add));
+        assertEquals(List.of(), fired);
+    }
+
+    @Test
+    @DisplayName("evaluatedAt is a current ms epoch and durationMicros is non-negative")
+    void timingFields() {
         long before = System.currentTimeMillis() - 1;
-        Flag<Boolean> flag = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("x"), datafile());
+        Flag<Object> flag = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("x"), datafile());
         assertTrue(flag.evaluatedAt() >= before);
-    }
-
-    @Test
-    @DisplayName("durationMicros is non-negative")
-    void durationNonNegative() {
-        Flag<Boolean> flag = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("x"), datafile());
         assertTrue(flag.durationMicros() >= 0);
-    }
-
-    @Test
-    @DisplayName("exists() returns true for found flag and false for not_found")
-    void existsHelper() {
-        Flag<Boolean> found = Evaluator.evaluateFlag("feature-flag", false, EvalContext.user("x"), datafile());
-        Flag<Boolean> missing = Evaluator.evaluateFlag("no-such-flag", false, EvalContext.user("x"), datafile());
-        assertTrue(found.exists());
-        assertFalse(missing.exists());
     }
 }
