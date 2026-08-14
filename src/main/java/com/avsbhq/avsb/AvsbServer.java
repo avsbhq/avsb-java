@@ -698,7 +698,7 @@ public final class AvsbServer implements AutoCloseable {
                 .append(" for ").append(datafileUrl).append(". ");
         if (status == 404) {
             message.append("A 404 means the key is not published in this environment: check the"
-                    + " SDK key against Settings, then Environments, in the A vs B dashboard, and"
+                    + " SDK key against Environments in the project sidebar, in the A vs B dashboard, and"
                     + " publish the environment if it has never been published. ");
         } else if (status == 403) {
             message.append("A 403 usually means a proxy or firewall in front of cdn.avsb.cloud is"

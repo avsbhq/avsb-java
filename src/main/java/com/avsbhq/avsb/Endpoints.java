@@ -272,7 +272,7 @@ public final class Endpoints {
             throw new IllegalArgumentException(
                     fnName + " was called without an SDK key. Pass the environment SDK key (it"
                             + " looks like \"sdk_production_xxxxxxxx\"), which you can copy from"
-                            + " Settings, then Environments, in the A vs B dashboard.");
+                            + " Environments in the project sidebar, in the A vs B dashboard.");
         }
         return trimmed;
     }
