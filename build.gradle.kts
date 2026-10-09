@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.avsbhq"
-version = "1.0.0"
+version = "1.0.1"
 
 java {
     toolchain { languageVersion.set(JavaLanguageVersion.of(17)) }
@@ -50,7 +50,8 @@ publishing {
             from(components["java"])
             groupId = "com.avsbhq"
             artifactId = "avsb-sdk"
-            version = "1.0.0"
+            // One source of truth: the project version above, which SdkMetadata also reports.
+            version = project.version.toString()
             pom {
                 name.set("A vs B Java SDK")
                 description.set("Official Java SDK for the A vs B feature-flag and experimentation platform.")

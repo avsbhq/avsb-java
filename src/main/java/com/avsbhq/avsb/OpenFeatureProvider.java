@@ -27,7 +27,7 @@ import java.util.Map;
  * <h2>Context mapping, including multi-kind</h2>
  *
  * OpenFeature has one flat evaluation context; A vs B buckets by KIND, which is how
- * organisation-keyed targeting works. The bridge follows the convention the OpenFeature
+ * organization-keyed targeting works. The bridge follows the convention the OpenFeature
  * ecosystem settled on, so nothing is lost:
  *
  * <ul>
@@ -41,13 +41,13 @@ import java.util.Map;
  *         .add("organization", new MutableStructure().add("key", "org_42").add("tier", "enterprise"));
  *       }</pre></li>
  *   <li>{@code kind: "organization"} with a targeting key builds a single context of that
- *       kind, so a flag bucketed by organisation buckets by organisation.</li>
+ *       kind, so a flag bucketed by organization buckets by organization.</li>
  *   <li>No {@code kind} builds a {@code user} context from the targeting key, which is the
  *       behaviour every existing caller already gets.</li>
  * </ul>
  *
  * Collapsing everything to a user context, which this provider used to do, silently lost
- * organisation-keyed bucketing: A vs B's headline targeting feature, evaluated as if it had
+ * organization-keyed bucketing: A vs B's headline targeting feature, evaluated as if it had
  * never been configured.
  *
  * <h2>Error codes</h2>

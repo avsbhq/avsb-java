@@ -198,6 +198,16 @@ public final class Evaluator {
                         // An empty variation list cannot serve anything. The reference
                         // skips it without a reason, so this does too.
                         if (rule.variations() == null || rule.variations().isEmpty()) continue;
+                        // A targeted delivery rule below 100 percent is a ROLLOUT: serve the
+                        // variation to that share of the audience and let everyone else fall
+                        // through to the next rule, exactly as an ab_test rule's allocation does
+                        // (N1-1). The gate sits after the empty-variations skip, so a rule with
+                        // nothing to serve stays a silent skip.
+                        String tdExclusion = AllocationGate.exclusion(rule, hashValue, flagKey);
+                        if (tdExclusion != null) {
+                            reasons.add(tdExclusion);
+                            continue;
+                        }
                         VariationRef targetVar =
                                 getVariationValue(flag, rule.variations().get(0).variationId());
                         reasons.add("rule \"" + rule.id()
@@ -209,19 +219,10 @@ public final class Evaluator {
                     }
 
                     case "ab_test" -> {
-                        // Traffic allocation. The threshold is a FLOAT comparison against
-                        // the raw product, never a truncated or rounded integer (spec
-                        // section 1.4). A 0.12345 rollout puts the threshold at 1234.5:
-                        // bucket 1234 is inside it, while a port that truncates to 1234
-                        // excludes that context and diverges by one bucket in ten
-                        // thousand, per rollout, undetectably.
-                        int allocHash = Hash.bucket(hashValue + flagKey + "__" + rule.id());
-                        if (rule.trafficAllocation() != null
-                                && allocHash >= rule.trafficAllocation() * 10_000) {
-                            reasons.add("rule \"" + rule.id()
-                                    + "\" excluded by traffic allocation (hash " + allocHash
-                                    + " >= threshold "
-                                    + JsNumber.stringify(rule.trafficAllocation() * 10_000) + ")");
+                        // Traffic allocation (see AllocationGate for the float-threshold rule).
+                        String abExclusion = AllocationGate.exclusion(rule, hashValue, flagKey);
+                        if (abExclusion != null) {
+                            reasons.add(abExclusion);
                             continue;
                         }
 

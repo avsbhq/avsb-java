@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * AvsbServer server = AvsbServer.builder("sdk_production_xxxxxxxxxxxx").build();
  * server.init();                                        // blocking, returns InitResult
  *
- * Flag<Boolean> flag = server.getBoolFlag("checkout-v2", false, EvalContext.user("alice"));
+ * Flag<Boolean> flag = server.getBoolFlag("checkout_v2", false, EvalContext.user("alice"));
  * if (flag.isEnabled()) { renderNewCheckout(); }
  *
  * server.track("signup_completed", EvalContext.user("alice"));

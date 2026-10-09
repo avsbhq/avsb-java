@@ -14,7 +14,7 @@ Spring Boot 3, Micronaut 4, and Quarkus 3 wiring included. OpenFeature provider 
 
 ```kotlin
 dependencies {
-    implementation("com.avsbhq:avsb-sdk:1.0.0")
+    implementation("com.avsbhq:avsb-sdk:1.0.1")
 }
 ```
 
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.avsbhq</groupId>
     <artifactId>avsb-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ public final class Main {
         }
 
         Flag<Boolean> flag = server.getBoolFlag(
-                "checkout-v2", false, EvalContext.user("user_42"));
+                "checkout_v2", false, EvalContext.user("user_42"));
 
         if (flag.isEnabled()) {
             // new checkout
@@ -136,7 +136,7 @@ EvalContext ctx = EvalContext.user("user_42", Map.of("plan", "pro", "seats", 25)
 
 The `key` is what buckets the user, so it must be stable for the same person. An empty key means every request lands in the same bucket, which corrupts an experiment invisibly, so the SDK warns once per client naming the call to add.
 
-### Multi-context, for organisation-keyed targeting
+### Multi-context, for organization-keyed targeting
 
 ```java
 EvalContext ctx = EvalContext.multi(Map.of(
@@ -144,7 +144,7 @@ EvalContext ctx = EvalContext.multi(Map.of(
         "organization", EvalContext.of("organization", "org_7", Map.of("tier", "enterprise"))));
 ```
 
-An audience condition can then target `organization.tier`, and a rule can bucket by `organization.key` so every member of an organisation sees the same variation.
+An audience condition can then target `organization.tier`, and a rule can bucket by `organization.key` so every member of an organization sees the same variation.
 
 ---
 
@@ -292,7 +292,7 @@ AvsbServer server = AvsbServer.builder("sdk_production_ttqm0eaj4vth1krcb2xn")
         .pollInterval(Duration.ofSeconds(30))              // default: 30 seconds
         .polling(true)                                      // default: true
         .tracking(true)                                     // default: true
-        .runtimeOverrides(Map.of("checkout-v2", "on"))      // default: none
+        .runtimeOverrides(Map.of("checkout_v2", "on"))      // default: none
         .bootstrapDatafile(parsedDoc)                       // default: none
         .stickyBucketService(new InMemoryStickyBucketService())
         .banditModelStore(myStore)                          // default: cold start
@@ -447,7 +447,7 @@ public class CheckoutController {
     @GetMapping("/checkout")
     public String checkout(Principal principal) {
         EvalContext ctx = EvalContext.user(principal.getName());
-        return avsb.getBoolFlag("checkout-v2", false, ctx).isEnabled() ? "v2" : "v1";
+        return avsb.getBoolFlag("checkout_v2", false, ctx).isEnabled() ? "v2" : "v1";
     }
 }
 ```
@@ -556,7 +556,7 @@ AvsbServer server = TestUtils.serverFromJson("sdk_test_abcdefgh", """
           "collectEndpoint": "https://ingest.avsb.cloud",
           "flags": [
             {
-              "id": "f1", "key": "checkout-v2", "type": "boolean", "enabled": true,
+              "id": "f1", "key": "checkout_v2", "type": "boolean", "enabled": true,
               "defaultVariationId": "var_off",
               "variations": [
                 {"id": "var_off", "key": "off", "value": false},
@@ -577,7 +577,7 @@ AvsbServer server = TestUtils.serverFromJson("sdk_test_abcdefgh", """
         }
         """);
 
-assertTrue(server.getBoolFlag("checkout-v2", false, EvalContext.user("alice")).isEnabled());
+assertTrue(server.getBoolFlag("checkout_v2", false, EvalContext.user("alice")).isEnabled());
 ```
 
 For a fixed answer without a datafile, use `runtimeOverrides`:
@@ -585,7 +585,7 @@ For a fixed answer without a datafile, use `runtimeOverrides`:
 ```java
 AvsbServer server = AvsbServer.builder("sdk_test_abcdefgh")
         .bootstrapDatafile(TestUtils.parseDatafile(json))
-        .runtimeOverrides(Map.of("checkout-v2", "on"))
+        .runtimeOverrides(Map.of("checkout_v2", "on"))
         .polling(false)
         .tracking(false)
         .build();
@@ -615,14 +615,14 @@ A missing or empty corpus FAILS the build. It used to emit a passing test named 
 OpenFeatureAPI.getInstance().setProviderAndWait(new OpenFeatureProvider(server));
 Client client = OpenFeatureAPI.getInstance().getClient();
 
-boolean enabled = client.getBooleanValue("checkout-v2", false,
+boolean enabled = client.getBooleanValue("checkout_v2", false,
         new MutableContext("user_42"));
 ```
 
 Context mapping, including the kinds OpenFeature has no native concept of:
 
 ```java
-// Multi-kind: organisation-keyed targeting survives the bridge.
+// Multi-kind: organization-keyed targeting survives the bridge.
 EvaluationContext ctx = new MutableContext("user_42")
         .add("kind", "multi")
         .add("user", new MutableStructure().add("key", "user_42").add("plan", "pro"))

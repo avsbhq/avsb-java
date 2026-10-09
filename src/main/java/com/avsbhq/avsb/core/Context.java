@@ -68,7 +68,7 @@ public final class Context {
      * <ul>
      *   <li>{@code "user.key"} → key of the user sub-context.</li>
      *   <li>{@code "organization.tier"} → {@code tier} attribute on the
-     *       organisation sub-context.</li>
+     *       organization sub-context.</li>
      *   <li>{@code "userId"} (no dot) → legacy fallback to the primary
      *       context's key.</li>
      *   <li>Any other undotted path → attribute on the primary context.</li>

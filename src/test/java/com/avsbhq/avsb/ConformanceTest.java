@@ -40,11 +40,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * when the boolean {@code true} arrives as the text {@code "true"}: the exact type-fidelity
  * failures the {@code typed} fixture family exists to catch. Both sides are now converted to
  * JSON nodes and compared structurally.
+ *
+ * <p>The fixture resolution, JSON reading and context parsing are package-private so
+ * {@link ConformanceAllocationTest} replays the allocation family through the same code.
  */
 @DisplayName("Conformance — all fixture cases")
 class ConformanceTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
+    static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     /** How far up the tree to look for the monorepo packages directory. */
@@ -75,7 +78,7 @@ class ConformanceTest {
         return candidates;
     }
 
-    private static Path fixturesRoot() {
+    static Path fixturesRoot() {
         List<Path> candidates = fixtureCandidates();
         for (Path candidate : candidates) {
             if (Files.isRegularFile(candidate.resolve("manifest.json"))) {
@@ -93,7 +96,7 @@ class ConformanceTest {
                         + " src/test/resources/avsb-conformance.");
     }
 
-    private static JsonNode readJson(Path path, String what) {
+    static JsonNode readJson(Path path, String what) {
         if (!Files.isRegularFile(path)) {
             throw new IllegalStateException(
                     "Conformance fixture missing: " + path + " (" + what + ")."
@@ -252,7 +255,7 @@ class ConformanceTest {
     // Context deserialisation from fixture JSON
     // -------------------------------------------------------------------------
 
-    private static EvalContext parseContext(JsonNode json) {
+    static EvalContext parseContext(JsonNode json) {
         String kind = json.has("kind") ? json.get("kind").asText() : "user";
         if ("multi".equals(kind)) {
             Map<String, EvalContext.SingleContext> subCtxs = new LinkedHashMap<>();
@@ -296,7 +299,7 @@ class ConformanceTest {
      * into a Long, which is not equal to the Integer the datafile side produces, so the
      * typed comparison would fail on the value's box type rather than on real behaviour.
      */
-    private static Object jsonToObject(JsonNode node) {
+    static Object jsonToObject(JsonNode node) {
         if (node == null || node.isNull()) return null;
         return MAPPER.convertValue(node, Object.class);
     }

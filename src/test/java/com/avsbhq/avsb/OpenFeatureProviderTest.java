@@ -198,10 +198,10 @@ class OpenFeatureProviderTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("a multi-kind context reaches organisation-keyed targeting")
+    @DisplayName("a multi-kind context reaches organization-keyed targeting")
     void multiKindContextIsMapped() {
         // Collapsing this to a user context, which the provider used to do, silently lost
-        // organisation-keyed bucketing: the flag below could never match.
+        // organization-keyed bucketing: the flag below could never match.
         EvaluationContext ctx = new MutableContext("alice")
                 .add("kind", "multi")
                 .add("user", new MutableStructure().add("key", "alice"))
@@ -211,7 +211,7 @@ class OpenFeatureProviderTest {
 
         ProviderEvaluation<Boolean> eval =
                 provider.getBooleanEvaluation("enterprise-only", false, ctx);
-        assertTrue(eval.getValue(), "the organisation audience must be evaluable");
+        assertTrue(eval.getValue(), "the organization audience must be evaluable");
         assertEquals("on", eval.getVariant());
     }
 

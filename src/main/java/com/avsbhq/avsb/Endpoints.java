@@ -77,8 +77,8 @@ public final class Endpoints {
     public static final String STREAM_UNAVAILABLE_REASON =
             "Streaming is on, but there is no stream endpoint to connect to: the datafile carries"
                     + " no \"streamEndpoint\" field and no streamingEndpoint option was set."
-                    + " Republish the environment from the A vs B dashboard (Settings, then"
-                    + " Environments) to pick up the field, or set streamingEndpoint explicitly."
+                    + " Republish the environment from the A vs B dashboard (Environments, in the"
+                    + " project sidebar) to pick up the field, or set streamingEndpoint explicitly."
                     + " Polling stays on in the meantime, so flag changes still arrive, just on the"
                     + " polling interval instead of instantly.";
 
