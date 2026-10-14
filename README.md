@@ -14,7 +14,7 @@ Spring Boot 3, Micronaut 4, and Quarkus 3 wiring included. OpenFeature provider 
 
 ```kotlin
 dependencies {
-    implementation("com.avsbhq:avsb-sdk:1.0.1")
+    implementation("cloud.avsb:avsb-sdk:1.0.1")
 }
 ```
 
@@ -22,13 +22,13 @@ dependencies {
 
 ```xml
 <dependency>
-    <groupId>com.avsbhq</groupId>
+    <groupId>cloud.avsb</groupId>
     <artifactId>avsb-sdk</artifactId>
     <version>1.0.1</version>
 </dependency>
 ```
 
-One artifact, `com.avsbhq:avsb-sdk`. There is no separate Spring Boot starter: the Spring auto-configuration ships inside this jar and activates when `avsb.sdk-key` is set (see section 9).
+One artifact, `cloud.avsb:avsb-sdk`. There is no separate Spring Boot starter: the Spring auto-configuration ships inside this jar and activates when `avsb.sdk-key` is set (see section 9).
 
 **Runtime requirements**
 
@@ -48,10 +48,10 @@ Optional, only if you use the matching feature:
 ## 2. Quickstart
 
 ```java
-import com.avsbhq.avsb.AvsbServer;
-import com.avsbhq.avsb.EvalContext;
-import com.avsbhq.avsb.Flag;
-import com.avsbhq.avsb.InitResult;
+import cloud.avsb.sdk.AvsbServer;
+import cloud.avsb.sdk.EvalContext;
+import cloud.avsb.sdk.Flag;
+import cloud.avsb.sdk.InitResult;
 
 public final class Main {
     public static void main(String[] args) {
@@ -544,7 +544,7 @@ Every path a bandit rule can take appends a reason: dispatched, no config, unres
 `TestUtils` builds a client from a datafile string or file, with polling, event sending, and logging all off, so a test never touches the network.
 
 ```java
-import com.avsbhq.avsb.TestUtils;
+import cloud.avsb.sdk.TestUtils;
 
 AvsbServer server = TestUtils.serverFromJson("sdk_test_abcdefgh", """
         {
@@ -603,7 +603,9 @@ static String readResource(String resourcePath);
 
 ### Conformance
 
-`src/test/java/com/avsbhq/avsb/ConformanceTest.java` runs the shared A vs B conformance corpus: the same datafiles, contexts, and expected outcomes every other A vs B SDK runs, generated from the TypeScript reference engine. Values, variation keys, sources, rule ids, rule types, and the exact ordered reason strings are all compared.
+`src/test/java/cloud/avsb/sdk/ConformanceTest.java` runs the shared A vs B conformance corpus: the same datafiles, contexts, and expected outcomes every other A vs B SDK runs, generated from the TypeScript reference engine. Values, variation keys, sources, rule ids, rule types, and the exact ordered reason strings are all compared.
+
+Run the suite with the committed Gradle wrapper, which pins the Gradle version the build is tested on: `./gradlew test`. Any JDK 17 or later runs it; the toolchain compiles for Java 17.
 
 A missing or empty corpus FAILS the build. It used to emit a passing test named "manifest not found, skipped", which meant the published standalone repo ran zero cases and reported green.
 
